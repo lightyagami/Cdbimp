@@ -1,0 +1,135 @@
+{
+  "scaling": [
+    {
+      "num_vectors": 50,
+      "dim": 768,
+      "insert_throughput_vps": 656.0,
+      "insert_avg_ms": 0.77,
+      "db_size_kb": 1211.06,
+      "cosine_p50_ms": 5.94,
+      "cosine_p95_ms": 6.65,
+      "cosine_qps": 165.2,
+      "l2_p50_ms": 5.83,
+      "recall_at_1": 1.0,
+      "recall_at_3": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0
+    },
+    {
+      "num_vectors": 200,
+      "dim": 768,
+      "insert_throughput_vps": 426.0,
+      "insert_avg_ms": 1.67,
+      "db_size_kb": 5174.14,
+      "cosine_p50_ms": 24.69,
+      "cosine_p95_ms": 29.23,
+      "cosine_qps": 39.8,
+      "l2_p50_ms": 24.26,
+      "recall_at_1": 0.9333,
+      "recall_at_3": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 0.9667
+    },
+    {
+      "num_vectors": 500,
+      "dim": 768,
+      "insert_throughput_vps": 261.9,
+      "insert_avg_ms": 3.21,
+      "db_size_kb": 13031.92,
+      "cosine_p50_ms": 56.08,
+      "cosine_p95_ms": 63.81,
+      "cosine_qps": 17.3,
+      "l2_p50_ms": 56.09,
+      "recall_at_1": 1.0,
+      "recall_at_3": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0
+    }
+  ],
+  "rag": {
+    "chat_model": "qwen3:8b",
+    "embed_model": "nomic-embed-text:latest",
+    "docs_indexed": 6,
+    "chunks_indexed": 59,
+    "ingest_embed_ms": 7631.8,
+    "ingest_dbms_insert_ms": 48.0,
+    "db_size_kb": 1424.3,
+    "retrieval_hit_rate": 1.0,
+    "answer_accuracy_rate": 1.0,
+    "avg_embed_ms": 399.46,
+    "avg_knn_ms": 10.72,
+    "avg_llm_ms": 14538.5,
+    "cases": [
+      {
+        "question": "What is the page size used by the DBMS storage engine?",
+        "retrieval_hit": true,
+        "answer_hit": true,
+        "top1_cosine": 0.7138,
+        "top1_source": "Docs/storage_format.md",
+        "timing": {
+          "embed_ms": 93.36,
+          "knn_search_ms": 8.13,
+          "llm_ms": 43070.82,
+          "total_ms": 43172.32
+        },
+        "answer_preview": "The page size used by the DBMS storage engine is $4\\,\\text{KB}$ ($4096\\,\\text{bytes}$) [1]."
+      },
+      {
+        "question": "How does WAL mode improve concurrency and crash recovery in this DBMS?",
+        "retrieval_hit": true,
+        "answer_hit": true,
+        "top1_cosine": 0.674,
+        "top1_source": "Docs/concurrency_and_transactions.md",
+        "timing": {
+          "embed_ms": 1623.29,
+          "knn_search_ms": 18.59,
+          "llm_ms": 6866.7,
+          "total_ms": 8508.58
+        },
+        "answer_preview": "WAL (Write-Ahead Logging) mode improves concurrency by allowing multiple write operations to occur simultaneously, as it separates the writing of changes to the log file from the actual modification of the main database file. This reduces contention on the mai"
+      },
+      {
+        "question": "What C API functions are used to prepare and step through a SQL query?",
+        "retrieval_hit": true,
+        "answer_hit": true,
+        "top1_cosine": 0.6509,
+        "top1_source": "API_DESIGN.md",
+        "timing": {
+          "embed_ms": 76.92,
+          "knn_search_ms": 9.19,
+          "llm_ms": 6057.79,
+          "total_ms": 6143.9
+        },
+        "answer_preview": "The C API functions used to prepare and step through a SQL query are `dbms_prepare_v2` for preparation and `dbms_step` for execution. These functions are part of the database API design [1]."
+      },
+      {
+        "question": "How does MVCC handle concurrent readers and writers?",
+        "retrieval_hit": true,
+        "answer_hit": true,
+        "top1_cosine": 0.5859,
+        "top1_source": "Docs/concurrency_and_transactions.md",
+        "timing": {
+          "embed_ms": 125.94,
+          "knn_search_ms": 8.87,
+          "llm_ms": 8943.52,
+          "total_ms": 9078.33
+        },
+        "answer_preview": "MVCC (Multi-Version Concurrency Control) handles concurrent readers and writers by allowing multiple readers to access the same data simultaneously without blocking each other. Readers can access historical versions of data, while writers modify the data in a "
+      },
+      {
+        "question": "What is the VDBE in this database engine?",
+        "retrieval_hit": true,
+        "answer_hit": true,
+        "top1_cosine": 0.7797,
+        "top1_source": "Docs/vdbe_bytecode.md",
+        "timing": {
+          "embed_ms": 77.77,
+          "knn_search_ms": 8.84,
+          "llm_ms": 7753.69,
+          "total_ms": 7840.3
+        },
+        "answer_preview": "The VDBE (Virtual Database Engine) in this database engine is a register-based virtual machine that executes bytecode instructions. It maintains VM state including registers (`regs`), open cursors (`cursors`), and a transient sort buffer (`sorter`). The VDBE i"
+      }
+    ]
+  }
+}

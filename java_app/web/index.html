@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NexusVault — Workspace &amp; DBMS Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="shell">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-name">NexusVault</span>
+          <span class="brand-tag">Java &middot; Custom C DBMS</span>
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-label">Workspace</div>
+        <button class="nav-item active" data-tab="overview">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+          <span>Overview</span>
+        </button>
+        <button class="nav-item" data-tab="tasks">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>
+          <span>Tasks</span>
+          <span class="nav-badge" id="navTaskCount">0</span>
+        </button>
+        <button class="nav-item" data-tab="notes">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          <span>Knowledge</span>
+          <span class="nav-pill">FTS5</span>
+        </button>
+        <button class="nav-item" data-tab="vault">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+          <span>Ephemeral Vault</span>
+          <span class="nav-pill warn">TTL</span>
+        </button>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-label">Database Engine</div>
+        <button class="nav-item" data-tab="engine">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+          <span>SQL Studio</span>
+        </button>
+      </div>
+
+      <div class="sidebar-bottom">
+        <div class="stream-box">
+          <div class="stream-head">
+            <span class="live-dot"></span>
+            <span>TCP LISTEN / NOTIFY</span>
+          </div>
+          <ul id="eventFeed" class="stream-list">
+            <li class="stream-empty">Connecting to Pub/Sub...</li>
+          </ul>
+        </div>
+      </div>
+    </aside>
+
+    <!-- CONTENT AREA -->
+    <div class="workspace">
+      <!-- TOP BAR -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <div class="quick-search" onclick="focusFtsSearch()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <span>Search FTS5 knowledge base...</span>
+            <kbd>/</kbd>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <div class="status-chip" id="engineStatusChip">
+            <span class="live-dot"></span>
+            <span id="dbEndpointLabel">WAL &middot; Connecting</span>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="openProjectModal()">+ Project</button>
+          <button class="btn btn-primary btn-sm" onclick="openTaskModal()">+ New Task</button>
+        </div>
+      </header>
+
+      <main class="content">
+        <!-- OVERVIEW TAB -->
+        <section class="panel active" id="tab-overview">
+          <div class="panel-head">
+            <div>
+              <h1>Workspace Overview</h1>
+              <p class="sub">Real-time B+Tree relational state, FTS5 full-text index, and native TTL engine telemetry.</p>
+            </div>
+          </div>
+
+          <div class="metrics-row">
+            <div class="metric">
+              <div class="metric-top">
+                <span class="metric-label">Projects</span>
+                <span class="metric-icon">P</span>
+              </div>
+              <div class="metric-val" id="kpiProjects">0</div>
+              <div class="metric-foot">Indexed B+Tree tables</div>
+            </div>
+            <div class="metric">
+              <div class="metric-top">
+                <span class="metric-label">Tasks</span>
+                <span class="metric-icon">T</span>
+              </div>
+              <div class="metric-val" id="kpiTasks">0</div>
+              <div class="metric-foot" id="kpiTaskBreakdown">0 completed</div>
+            </div>
+            <div class="metric">
+              <div class="metric-top">
+                <span class="metric-label">FTS5 Docs</span>
+                <span class="metric-icon">F</span>
+              </div>
+              <div class="metric-val" id="kpiNotes">0</div>
+              <div class="metric-foot">Full-text MATCH ready</div>
+            </div>
+            <div class="metric">
+              <div class="metric-top">
+                <span class="metric-label">Active TTL</span>
+                <span class="metric-icon">E</span>
+              </div>
+              <div class="metric-val" id="kpiVault">0</div>
+              <div class="metric-foot">Auto-expiring secrets</div>
+            </div>
+            <div class="metric metric-highlight">
+              <div class="metric-top">
+                <span class="metric-label">SQL Queries</span>
+                <span class="metric-icon">Q</span>
+              </div>
+              <div class="metric-val" id="kpiQueries">0</div>
+              <div class="metric-foot" id="kpiLatency">0.0 ms avg</div>
+            </div>
+          </div>
+
+          <div class="overview-grid">
+            <div class="card">
+              <div class="card-head">
+                <div>
+                  <h2>Projects</h2>
+                  <p class="sub-sm">Click any project to filter its Kanban board.</p>
+                </div>
+                <button class="btn btn-ghost btn-sm" onclick="openProjectModal()">+ Add</button>
+              </div>
+              <div class="projects-grid" id="projectsList"></div>
+            </div>
+
+            <div class="card completion-card">
+              <div class="card-head">
+                <div>
+                  <h2>Task Velocity</h2>
+                  <p class="sub-sm">Live status breakdown</p>
+                </div>
+              </div>
+              <div class="donut-wrap">
+                <svg class="donut" viewBox="0 0 120 120">
+                  <circle class="donut-bg" cx="60" cy="60" r="46" />
+                  <circle class="donut-seg seg-done" id="donutDone" cx="60" cy="60" r="46" stroke-dasharray="0 289" />
+                  <circle class="donut-seg seg-prog" id="donutProg" cx="60" cy="60" r="46" stroke-dasharray="0 289" />
+                </svg>
+                <div class="donut-center">
+                  <div class="donut-pct" id="donutPct">0%</div>
+                  <div class="donut-lbl">Done</div>
+                </div>
+              </div>
+              <div class="legend">
+                <div class="legend-row"><span class="dot dot-done"></span><span>Done</span><strong id="legDone">0</strong></div>
+                <div class="legend-row"><span class="dot dot-prog"></span><span>In Progress</span><strong id="legProg">0</strong></div>
+                <div class="legend-row"><span class="dot dot-todo"></span><span>To Do</span><strong id="legTodo">0</strong></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- KANBAN TASKS TAB -->
+        <section class="panel" id="tab-tasks">
+          <div class="panel-head">
+            <div>
+              <h1>Kanban Board</h1>
+              <p class="sub">Drag and drop cards across columns or use quick actions. Every move updates the C DBMS and broadcasts over TCP.</p>
+            </div>
+            <div class="head-actions">
+              <select id="taskProjectFilter" class="input select" onchange="loadTasks()">
+                <option value="">All Projects</option>
+              </select>
+              <button class="btn btn-primary" onclick="openTaskModal()">+ New Task</button>
+            </div>
+          </div>
+
+          <div class="kanban">
+            <div class="kcol" data-status="TODO" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event, 'TODO')">
+              <div class="kcol-head">
+                <div class="kcol-title"><span class="dot dot-todo"></span> To Do</div>
+                <span class="kcol-count" id="countTodo">0</span>
+              </div>
+              <div class="kcol-body" id="col-TODO"></div>
+            </div>
+
+            <div class="kcol" data-status="IN_PROGRESS" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event, 'IN_PROGRESS')">
+              <div class="kcol-head">
+                <div class="kcol-title"><span class="dot dot-prog"></span> In Progress</div>
+                <span class="kcol-count" id="countInProgress">0</span>
+              </div>
+              <div class="kcol-body" id="col-IN_PROGRESS"></div>
+            </div>
+
+            <div class="kcol" data-status="DONE" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event, 'DONE')">
+              <div class="kcol-head">
+                <div class="kcol-title"><span class="dot dot-done"></span> Done</div>
+                <span class="kcol-count" id="countDone">0</span>
+              </div>
+              <div class="kcol-body" id="col-DONE"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- KNOWLEDGE BASE (FTS5) TAB -->
+        <section class="panel" id="tab-notes">
+          <div class="panel-head">
+            <div>
+              <h1>Knowledge Base</h1>
+              <p class="sub">Instant full-text search powered by <code>CREATE VIRTUAL TABLE notes_fts USING fts5(title, body)</code>.</p>
+            </div>
+            <button class="btn btn-primary" onclick="openNoteModal()">+ New Note</button>
+          </div>
+
+          <div class="search-wrap">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="ftsSearchInput" placeholder="Search with FTS5 MATCH (try: MVCC, B+Tree, Java, TTL)..." oninput="debouncedSearchNotes()" />
+            <button class="btn btn-ghost btn-sm" onclick="clearNoteSearch()">Reset</button>
+          </div>
+
+          <div class="notes-grid" id="notesList"></div>
+        </section>
+
+        <!-- EPHEMERAL VAULT (TTL) TAB -->
+        <section class="panel" id="tab-vault">
+          <div class="panel-head">
+            <div>
+              <h1>Ephemeral Vault</h1>
+              <p class="sub">Rows inserted with native <code>EXPIRES &lt;seconds&gt;</code> automatically self-destruct inside the C storage engine.</p>
+            </div>
+          </div>
+
+          <div class="vault-grid">
+            <form class="card vault-form" onsubmit="createVaultItem(event)">
+              <h2>New Self-Destructing Secret</h2>
+              <label>Label
+                <input type="text" class="input" id="vaultLabel" required placeholder="e.g. One-Time Staging Token" />
+              </label>
+              <label>Secret Payload
+                <textarea class="input" id="vaultContent" rows="4" required placeholder="API key, temporary password, or short-lived note..."></textarea>
+              </label>
+              <label>Auto-Expire After
+                <div class="ttl-pills" id="ttlPills">
+                  <button type="button" class="pill" data-ttl="15" onclick="pickTtl(15)">15s</button>
+                  <button type="button" class="pill active" data-ttl="30" onclick="pickTtl(30)">30s</button>
+                  <button type="button" class="pill" data-ttl="60" onclick="pickTtl(60)">1m</button>
+                  <button type="button" class="pill" data-ttl="300" onclick="pickTtl(300)">5m</button>
+                </div>
+                <input type="hidden" id="vaultTtl" value="30" />
+              </label>
+              <button type="submit" class="btn btn-primary">Store with Native TTL</button>
+            </form>
+
+            <div class="card">
+              <div class="card-head">
+                <div>
+                  <h2>Active Ephemeral Rows</h2>
+                  <p class="sub-sm">When the countdown reaches 0, the row disappears from the C DBMS.</p>
+                </div>
+                <button class="btn btn-ghost btn-sm" onclick="loadVault()">Sync</button>
+              </div>
+              <div id="vaultList" class="vault-list"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SQL STUDIO & ENGINE INSPECTOR TAB -->
+        <section class="panel" id="tab-engine">
+          <div class="panel-head">
+            <div>
+              <h1>SQL Studio &amp; Engine Inspector</h1>
+              <p class="sub">Run live SQL directly against your C DBMS (<kbd>Ctrl</kbd>+<kbd>Enter</kbd>) and inspect real-time query telemetry.</p>
+            </div>
+            <div class="head-actions">
+              <button class="btn btn-ghost" onclick="runEngineAction('vacuum')">VACUUM</button>
+              <button class="btn btn-ghost" onclick="runEngineAction('backup')">Online BACKUP</button>
+            </div>
+          </div>
+
+          <div class="card sql-card">
+            <div class="chip-bar">
+              <span class="sub-sm">Presets:</span>
+              <button class="chip" onclick="setSql('SELECT id, name, color FROM projects ORDER BY id ASC;')">Projects</button>
+              <button class="chip" onclick="setSql('SELECT id, title, status, priority FROM tasks ORDER BY id DESC;')">All Tasks</button>
+              <button class="chip" onclick="setSql(&quot;SELECT id, title, body FROM notes_fts WHERE body MATCH 'MVCC';&quot;)">FTS5 MATCH</button>
+              <button class="chip" onclick="setSql('SELECT id, label, ttl_seconds FROM scratchpad;')">TTL Rows</button>
+            </div>
+            <textarea id="sqlInput" rows="3" class="sql-box" placeholder="SELECT * FROM tasks;">SELECT id, title, status, priority FROM tasks ORDER BY id ASC;</textarea>
+            <div class="sql-bar">
+              <button class="btn btn-primary" onclick="runSqlConsole()">Run Query</button>
+              <span id="sqlStatus" class="sub-sm mono"></span>
+            </div>
+            <div id="sqlOutput" class="table-wrap"></div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h2>Live Query Telemetry</h2>
+                <p class="sub-sm">Every SQL query issued by Java to the C DBMS server</p>
+              </div>
+              <button class="btn btn-ghost btn-sm" onclick="loadTelemetry()">Refresh</button>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr><th>#</th><th>SQL Statement</th><th>Rows</th><th>Latency</th><th>Status</th></tr>
+                </thead>
+                <tbody id="telemetryBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- MODALS -->
+  <div class="backdrop" id="modalBackdrop" onclick="closeModals()"></div>
+
+  <div class="modal" id="projectModal">
+    <div class="modal-head">
+      <h3>New Project</h3>
+      <button class="icon-btn" onclick="closeModals()">&times;</button>
+    </div>
+    <form onsubmit="submitProject(event)">
+      <label>Project Name <input type="text" class="input" id="projName" required placeholder="e.g. Distributed Systems Lab" /></label>
+      <label>Description <textarea class="input" id="projDesc" rows="3" placeholder="Brief summary..."></textarea></label>
+      <label>Color Accent
+        <div class="color-swatches">
+          <input type="color" id="projColor" value="#818cf8" class="color-input" />
+          <span class="sub-sm">Used for badges and completion bars</span>
+        </div>
+      </label>
+      <div class="modal-foot">
+        <button type="button" class="btn btn-ghost" onclick="closeModals()">Cancel</button>
+        <button type="submit" class="btn btn-primary">Create Project</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="modal" id="taskModal">
+    <div class="modal-head">
+      <h3>New Task</h3>
+      <button class="icon-btn" onclick="closeModals()">&times;</button>
+    </div>
+    <form onsubmit="submitTask(event)">
+      <label>Project <select id="taskProject" class="input select"></select></label>
+      <label>Title <input type="text" class="input" id="taskTitle" required placeholder="e.g. Stress-test WAL crash recovery" /></label>
+      <label>Description <textarea class="input" id="taskDesc" rows="3" placeholder="Optional details..."></textarea></label>
+      <div class="two-col">
+        <label>Priority
+          <select id="taskPriority" class="input select">
+            <option value="HIGH">HIGH</option>
+            <option value="MEDIUM" selected>MEDIUM</option>
+            <option value="LOW">LOW</option>
+          </select>
+        </label>
+        <label>Due Date <input type="date" class="input" id="taskDue" /></label>
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="btn btn-ghost" onclick="closeModals()">Cancel</button>
+        <button type="submit" class="btn btn-primary">Create Task</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="modal" id="noteModal">
+    <div class="modal-head">
+      <h3>New FTS5 Note</h3>
+      <button class="icon-btn" onclick="closeModals()">&times;</button>
+    </div>
+    <form onsubmit="submitNote(event)">
+      <label>Title <input type="text" class="input" id="noteTitle" required placeholder="e.g. MVCC Snapshot Isolation" /></label>
+      <label>Content <textarea class="input" id="noteBody" rows="5" required placeholder="Notes or code snippets indexed by FTS5..."></textarea></label>
+      <div class="modal-foot">
+        <button type="button" class="btn btn-ghost" onclick="closeModals()">Cancel</button>
+        <button type="submit" class="btn btn-primary">Index Note</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <script src="/app.js"></script>
+</body>
+</html>
